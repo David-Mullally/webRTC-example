@@ -48,9 +48,45 @@ let createOffer = async () => {
     document.getElementById('offer-SDP').value = JSON.stringify(offer)
 }
 
+let createAnswer = async () => {
+    peerConnection = new RTCPeerConnection(servers)
+
+    remoteStream = new MediaStream()
+    document.getElementById('user-2').srcObject = remoteStream
+
+
+    localStream.getTracks().forEach((track) => {
+        peerConnection.addTrack(track, localStream)
+    })
+
+    peerConnection.ontrack = async (event) => {
+        event.streams[0].getTracks().forEach((track) => {
+            remoteStream.addTrack(track)
+        })
+    }
+
+
+    peerConnection.onicecandidate = async (event) => {
+        if (event.candidate) {
+            document.getElementById('answer-SDP').value = JSON.stringify(peerConnection.localDescription)
+        }
+    }
+
+    let offer = document.getElementById('offer-SDP').value
+    if (!offer) return alert('retrieve offer form peer first...')
+    
+    offer = JSON.parse(offer)
+    await peerConnection.setRemoteDescription(offer)
+
+    let answer = await peerConnection.createAnswer()
+    await peerConnection.setLocalDescription(answer)
+
+    document.getElementById('answer-SDP').value = JSON.stringify(answer)
+}
 
 
 
 init()
 
 document.getElementById('create-offer').addEventListener('click', createOffer) 
+document.getElementById('create-answer').addEventListener('click', createAnswer) 
