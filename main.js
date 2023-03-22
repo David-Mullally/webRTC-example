@@ -84,9 +84,19 @@ let createAnswer = async () => {
     document.getElementById('answer-SDP').value = JSON.stringify(answer)
 }
 
+let addAnswer = async () => {
+    let answer = document.getElementById('answer-SDP').value
+    if (!answer) return alert('retrieve answer form peer first...')
 
+    answer = JSON.parse(answer)
+
+    if (!peerConnection.currentRemoteDescription) {
+        peerConnection.setRemoteDescription(answer)
+    }
+}
 
 init()
 
 document.getElementById('create-offer').addEventListener('click', createOffer) 
 document.getElementById('create-answer').addEventListener('click', createAnswer) 
+document.getElementById('add-answer').addEventListener('click', addAnswer) 
