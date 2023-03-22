@@ -24,6 +24,24 @@ let createOffer = async () => {
     remoteStream = new MediaStream()
     document.getElementById('user-2').srcObject = remoteStream
 
+
+    localStream.getTracks().forEach((track) => {
+        peerConnection.addTrack(track, localStream)
+    })
+
+    peerConnection.ontrack = async (event) => {
+        event.streams[0].getTracks().forEach((track) => {
+            remoteStream.addTrack(track)
+        })
+    }
+
+
+    peerConnection.onicecandidate = async (event) => {
+        if (event.candidate) {
+            document.getElementById('offer-SDP').value = JSON.stringify(peerConnection.localDescription)
+        }
+    }
+
     let offer = await peerConnection.createOffer()
     await peerConnection.setLocalDescription(offer)
 
